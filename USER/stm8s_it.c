@@ -141,6 +141,9 @@ INTERRUPT_HANDLER(EXTI_PORTC_IRQHandler, 5)
   /* In order to detect unexpected events during development,
      it is recommended to set a breakpoint on the following instruction.
   */
+   GPIO_WriteHigh(GPIOC, GPIO_PIN_3); // 设置PC3为高电平
+            GPIO_WriteLow(GPIOC, GPIO_PIN_4);  // 设置PC4为低电平
+            TIM4_Start(); // 启动定时器开始倒计时
 }
 
 /**
@@ -501,6 +504,7 @@ INTERRUPT_HANDLER(TIM6_UPD_OVF_TRG_IRQHandler, 23)
         //GPIO_WriteReverse(GPIOC, GPIO_PIN_4); // 示例操作：切换PC4状态
         ticks = 0; // 重置计时器
         TIM4_Cmd(DISABLE); // 停止定时器
+         halt(); // 进入低功耗模式，等待外部中断唤醒
     }
 
     TIM4_ClearITPendingBit(TIM4_IT_UPDATE); // 清除中断标志位

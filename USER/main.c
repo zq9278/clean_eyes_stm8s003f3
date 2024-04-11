@@ -35,9 +35,8 @@
 void GPIO_Config(void) {
     // 初始化GPIOC的PIN3和PIN4为输出模式
     GPIO_Init(GPIOC, GPIO_PIN_3 | GPIO_PIN_4, GPIO_MODE_OUT_PP_LOW_FAST);
-
-    // PC5默认为输入模式，如果需要可以显式初始化为浮空输入
-    GPIO_Init(GPIOC, GPIO_PIN_5, GPIO_MODE_IN_FL_NO_IT);
+// 初始化PC5为浮动输入带中断
+    GPIO_Init(GPIOC, GPIO_PIN_5, GPIO_MODE_IN_FL_IT); 
      // 初始化GPIOB的PIN4和PIN5为推挽输出模式，初始状态为高电平  
     GPIO_Init(GPIOB, GPIO_PIN_4 | GPIO_PIN_5, GPIO_MODE_OUT_PP_HIGH_FAST);
 }
@@ -47,6 +46,11 @@ void TIM4_Config(void) {
     TIM4_ClearFlag(TIM4_FLAG_UPDATE);
     TIM4_ITConfig(TIM4_IT_UPDATE, ENABLE); // 使能更新中断
     // 注意：这里不再调用 TIM4_Cmd(ENABLE); 来启动定时器
+}
+void GPIO_EXTI_Config(void) {
+    EXTI_DeInit(); // 重置外部中断到默认状态
+    EXTI_SetExtIntSensitivity(EXTI_PORT_GPIOC, EXTI_SENSITIVITY_FALL_LOW); // 设置PC5中断触发条件为下降沿和低电平
+    enableInterrupts(); // 全局使能中断
 }
 
 // 新增一个函数用于启动定时器
@@ -71,7 +75,13 @@ void Delay_ms(uint16_t ms) {
 
     TIM2_Cmd(DISABLE); // 停止定时器
 }
+void Enter_LowPowerMode(void) {
+    /* 配置低功耗模式前的准备 */
+    // 可以在这里配置外设进入低功耗模式，如关闭未使用的外设时钟
 
+    /* 进入低功耗模式 */
+    halt();  // 进入halt模式
+}
 void main(void)
 {
  disableInterrupts();
@@ -79,14 +89,10 @@ void main(void)
     TIM4_Config(); // 配置定时器，但不启动
     TIM2_ConfigForDelay(); // 配置定时器
     enableInterrupts(); // 使能全局中断
-
+Enter_LowPowerMode(); // 进入低功耗模式，等待外部中断唤醒
     while (1) {
-        if (!(GPIO_ReadInputPin(GPIOC, GPIO_PIN_5))) { // 如果PC5为低电平
-            GPIO_WriteHigh(GPIOC, GPIO_PIN_3); // 设置PC3为高电平
-            GPIO_WriteLow(GPIOC, GPIO_PIN_4);  // 设置PC4为低电平
-            TIM4_Start(); // 启动定时器开始倒计时
-            while(!(GPIO_ReadInputPin(GPIOC, GPIO_PIN_5))); // 等待PC5恢复为高电平
-        }
+        //halt(); // 进入低功耗模式，等待外部中断唤醒
+       
          GPIO_WriteReverse(GPIOB, GPIO_PIN_4); // 反转PB4状态
         GPIO_WriteReverse(GPIOB, GPIO_PIN_5); // 反转PB5状态
         Delay_ms(50); // 假设的延时函数，需要根据实际的时钟频率来调整这个值以达到200ms的延时
