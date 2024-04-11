@@ -30,6 +30,8 @@
 #include "stm8s.h"
  volatile uint16_t _msCounter;
 /* Private defines -----------------------------------------------------------*/
+uint16_t adc_value;
+    float voltage;
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 void GPIO_Config(void) {
@@ -82,17 +84,45 @@ void Enter_LowPowerMode(void) {
     /* 进入低功耗模式 */
     halt();  // 进入halt模式
 }
+void ADC_Init(void) {
+    // 重置ADC1的所有寄存器到默认值
+    ADC1_DeInit();
+
+    // 初始化ADC1
+    // 使用单次转换模式，选择AIN4通道，即PD4
+    // 设置ADC时钟为fCPU/2，无外部触发，右对齐数据格式
+    // AIN4不使用施密特触发器
+    ADC1_Init(ADC1_CONVERSIONMODE_SINGLE, ADC1_CHANNEL_5, ADC1_PRESSEL_FCPU_D2, 
+              ADC1_EXTTRIG_TIM, DISABLE, ADC1_ALIGN_RIGHT, ADC1_SCHMITTTRIG_CHANNEL4,
+              DISABLE);
+}
+uint16_t Read_ADC(void) {
+    // 开始ADC转换
+    ADC1_StartConversion();
+
+    // 等待转换完成
+    while(ADC1_GetFlagStatus(ADC1_FLAG_EOC) == RESET);
+
+    // 获取并返回ADC转换结果
+    return ADC1_GetConversionValue();
+}
+
 void main(void)
 {
+    
  disableInterrupts();
+    ADC_Init();  // 初始化ADC
     GPIO_Config(); // 配置GPIO
     TIM4_Config(); // 配置定时器，但不启动
     TIM2_ConfigForDelay(); // 配置定时器
     enableInterrupts(); // 使能全局中断
 Enter_LowPowerMode(); // 进入低功耗模式，等待外部中断唤醒
     while (1) {
-        //halt(); // 进入低功耗模式，等待外部中断唤醒
-       
+      // 读取ADC值
+        adc_value = Read_ADC();
+        // 计算实际电压值，假设Vref=3.3V，10位ADC
+        //voltage = (float)adc_value * 5 / 1024;
+         voltage = (float)adc_value * 3.3*4/3/ 1024;
          GPIO_WriteReverse(GPIOB, GPIO_PIN_4); // 反转PB4状态
         GPIO_WriteReverse(GPIOB, GPIO_PIN_5); // 反转PB5状态
         Delay_ms(50); // 假设的延时函数，需要根据实际的时钟频率来调整这个值以达到200ms的延时
