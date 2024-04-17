@@ -1615,7 +1615,19 @@
             <name>$PROJ_DIR$\STM8S_StdPeriph_Driver\src\stm8s_adc1.c</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\STM8S_StdPeriph_Driver\src\stm8s_clk.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\STM8S_StdPeriph_Driver\src\stm8s_exti.c</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\STM8S_StdPeriph_Driver\src\stm8s_gpio.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\STM8S_StdPeriph_Driver\src\stm8s_iwdg.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\STM8S_StdPeriph_Driver\src\stm8s_tim1.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\STM8S_StdPeriph_Driver\src\stm8s_tim2.c</name>
@@ -1623,14 +1635,29 @@
         <file>
             <name>$PROJ_DIR$\STM8S_StdPeriph_Driver\src\stm8s_tim4.c</name>
         </file>
+        <file>
+            <name>$PROJ_DIR$\STM8S_StdPeriph_Driver\src\stm8s_wwdg.c</name>
+        </file>
     </group>
     <group>
         <name>USER</name>
+        <file>
+            <name>$PROJ_DIR$\USER\adc.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\USER\gpio.c</name>
+        </file>
         <file>
             <name>$PROJ_DIR$\USER\main.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\USER\stm8s_it.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\USER\sys.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\USER\tim.c</name>
         </file>
     </group>
 </project>
